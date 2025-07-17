@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Streaming Processing - Component Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .diagram-container {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .architecture-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .layer {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .layer-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 6px;
+        }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .component {
+            background: #fff;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .component.producer {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .component.processor {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .component.api {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .component.storage {
+            border-color: #9b59b6;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+
+        .component.ui {
+            border-color: #1abc9c;
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+        }
+
+        .component-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .component-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .component-tech {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .data-flow {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .flow-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 40px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .kafka-cluster {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            margin: 20px 0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kafka-topics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .flow-diagram {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .components {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Java Streaming Processing Application</h1>
+            <p>Component Architecture & Data Flow Diagram</p>
+        </div>
+
+        <div class="diagram-container">
+            <!-- Presentation Layer -->
+            <div class="layer">
+                <div class="layer-title">Presentation Layer</div>
+                <div class="components">
+                    <div class="component ui">
+                        <div class="component-title">Web Dashboard</div>
+                        <div class="component-description">Real-time monitoring interface with charts and metrics</div>
+                        <div class="component-tech">HTML5, CSS3, Chart.js, Server-Sent Events</div>
+                    </div>
+                    <div class="component ui">
+                        <div class="component-title">Dashboard Controller</div>
+                        <div class="component-description">Serves the web dashboard template</div>
+                        <div class="component-tech">Spring MVC, Thymeleaf</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Layer -->
+            <div class="layer">
+                <div class="layer-title">API Layer</div>
+                <div class="components">
+                    <div class="component api">
+                        <div class="component-title">Streaming Controller</div>
+                        <div class="component-description">REST endpoints for accessing processed events and health status</div>
+                        <div class="component-tech">Spring Boot, Spring WebFlux, REST API</div>
+                    </div>
+                    <div class="component api">
+                        <div class="component-title">Health Monitoring</div>
+                        <div class="component-description">System health checks and metrics exposure</div>
+                        <div class="component-tech">Spring Actuator, Micrometer</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Layer -->
+            <div class="layer">
+                <div class="layer-title">Stream Processing Layer</div>
+                <div class="components">
+                    <div class="component processor">
+                        <div class="component-title">Stream Processor</div>
+                        <div class="component-description">Kafka Streams topology for windowed aggregations and transformations</div>
+                        <div class="component-tech">Kafka Streams, Time Windows, Aggregations</div>
+                    </div>
+                    <div class="component processor">
+                        <div class="component-title">Event Aggregator</div>
+                        <div class="component-description">Groups events by type and calculates statistics in 30-second windows</div>
+                        <div class="component-tech">Kafka Streams KTable, Windowing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kafka Cluster -->
+            <div class="kafka-cluster">
+                <div class="layer-title" style="color: white; background: rgba(255,255,255,0.1);">Apache Kafka Cluster</div>
+                <div class="kafka-topics">
+                    <div class="topic">user-activities</div>
+                    <div class="topic">processed-events</div>
+                </div>
+            </div>
+
+            <!-- Data Generation Layer -->
+            <div class="layer">
+                <div class="layer-title">Data Generation Layer</div>
+                <div class="components">
+                    <div class="component producer">
+                        <div class="component-title">Event Producer</div>
+                        <div class="component-description">Generates random user activity events every 2 seconds</div>
+                        <div class="component-tech">Spring Kafka, Scheduled Tasks, Jackson</div>
+                    </div>
+                    <div class="component producer">
+                        <div class="component-title">Data Models</div>
+                        <div class="component-description">UserActivity and ProcessedEvent POJOs with JSON serialization</div>
+                        <div class="component-tech">Jackson, Java Time API, Validation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Layer -->
+            <div class="layer">
+                <div class="layer-title">Configuration Layer</div>
+                <div class="components">
+                    <div class="component storage">
+                        <div class="component-title">Kafka Configuration</div>
+                        <div class="component-description">Producer, consumer, and topic configuration</div>
+                        <div class="component-tech">Spring Kafka Configuration</div>
+                    </div>
+                    <div class="component storage">
+                        <div class="component-title">Jackson Configuration</div>
+                        <div class="component-description">JSON serialization and time handling setup</div>
+                        <div class="component-tech">ObjectMapper, JavaTimeModule</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flow Diagram -->
+            <div class="data-flow">
+                <div class="flow-title">Data Flow Pipeline</div>
+                <div class="flow-diagram">
+                    <div class="flow-step">Generate Events</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">Kafka Topic</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">Stream Processing</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">Aggregation</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">Output Topic</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">API & Dashboard</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-title">Component Types</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);"></div>
+                        <span>Data Generation & Production</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);"></div>
+                        <span>Stream Processing & Analytics</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);"></div>
+                        <span>API & Service Layer</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);"></div>
+                        <span>Configuration & Infrastructure</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);"></div>
+                        <span>User Interface & Presentation</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);"></div>
+                        <span>Message Broker (Kafka)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
