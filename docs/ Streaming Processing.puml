@@ -1,0 +1,156 @@
+@startuml Java Streaming Processing Application - Component Diagram
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+' Define colors for different component types
+skinparam component {
+    BackgroundColor<<Producer>> #27AE60
+    BorderColor<<Producer>> #229954
+    BackgroundColor<<Processor>> #E74C3C
+    BorderColor<<Processor>> #C0392B
+    BackgroundColor<<API>> #F39C12
+    BorderColor<<API>> #E67E22
+    BackgroundColor<<UI>> #1ABC9C
+    BorderColor<<UI>> #16A085
+    BackgroundColor<<Config>> #9B59B6
+    BorderColor<<Config>> #8E44AD
+    BackgroundColor<<Storage>> #34495E
+    BorderColor<<Storage>> #2C3E50
+}
+
+title Java Streaming Processing Application\nComponent Architecture Diagram
+
+package "Presentation Layer" as PresentationLayer {
+    component [Web Dashboard] as Dashboard <<UI>>
+    component [Dashboard Controller] as DashboardController <<UI>>
+    
+    note right of Dashboard
+        Real-time monitoring interface
+        - Live charts and metrics
+        - Server-sent events
+        - Responsive design
+        Tech: HTML5, CSS3, Chart.js
+    end note
+}
+
+package "API Layer" as APILayer {
+    component [Streaming Controller] as StreamingController <<API>>
+    component [Health Monitoring] as HealthMonitoring <<API>>
+    
+    note right of StreamingController
+        REST endpoints for:
+        - /api/streaming/events
+        - /api/streaming/events/{type}
+        - /api/streaming/events/stream
+        Tech: Spring Boot, WebFlux
+    end note
+}
+
+package "Stream Processing Layer" as ProcessingLayer {
+    component [Stream Processor] as StreamProcessor <<Processor>>
+    component [Event Aggregator] as EventAggregator <<Processor>>
+    
+    note right of StreamProcessor
+        Kafka Streams topology:
+        - Windowed aggregations
+        - Event transformations
+        - 30-second time windows
+        Tech: Kafka Streams, KTable
+    end note
+}
+
+package "Apache Kafka Cluster" as KafkaCluster {
+    database "user-activities\nTopic" as UserActivitiesTopic <<Storage>>
+    database "processed-events\nTopic" as ProcessedEventsTopic <<Storage>>
+    
+    note right of UserActivitiesTopic
+        Raw user activity events
+        Partitions: 3
+        Replication: 1
+    end note
+    
+    note right of ProcessedEventsTopic
+        Aggregated and processed events
+        Partitions: 3
+        Replication: 1
+    end note
+}
+
+package "Data Generation Layer" as DataLayer {
+    component [Event Producer] as EventProducer <<Producer>>
+    component [User Activity Model] as UserActivityModel <<Producer>>
+    component [Processed Event Model] as ProcessedEventModel <<Producer>>
+    
+    note right of EventProducer
+        Generates events every 2 seconds:
+        - Random user activities
+        - Multiple action types
+        - Realistic data patterns
+        Tech: Spring Kafka, Scheduled Tasks
+    end note
+}
+
+package "Configuration Layer" as ConfigLayer {
+    component [Kafka Configuration] as KafkaConfig <<Config>>
+    component [Jackson Configuration] as JacksonConfig <<Config>>
+    component [Application Properties] as AppProperties <<Config>>
+    
+    note right of KafkaConfig
+        Producer/Consumer setup
+        Topic auto-creation
+        Serialization config
+    end note
+}
+
+' Data Flow Connections
+EventProducer --> UserActivitiesTopic : "Produces\nJSON events"
+UserActivitiesTopic --> StreamProcessor : "Consumes\nevents"
+StreamProcessor --> EventAggregator : "Processes &\naggregates"
+EventAggregator --> ProcessedEventsTopic : "Outputs\nprocessed events"
+ProcessedEventsTopic --> StreamingController : "Reads latest\nevents"
+
+' API Connections
+StreamingController --> Dashboard : "REST API\n& SSE stream"
+DashboardController --> Dashboard : "Serves\ntemplate"
+HealthMonitoring --> Dashboard : "System\nhealth data"
+
+' Configuration Dependencies
+KafkaConfig --> EventProducer : "configures"
+KafkaConfig --> StreamProcessor : "configures"
+JacksonConfig --> EventProducer : "JSON\nserialization"
+JacksonConfig --> StreamProcessor : "JSON\ndeserialization"
+AppProperties --> KafkaConfig : "properties"
+
+' Model Dependencies
+UserActivityModel --> EventProducer : "data structure"
+ProcessedEventModel --> StreamProcessor : "output structure"
+ProcessedEventModel --> StreamingController : "API response"
+
+' Internal Processing Flow
+StreamProcessor --> StreamProcessor : "Windowed\nAggregation\n(30s windows)"
+
+legend right
+    |Color| Component Type |
+    |<#27AE60>| Data Generation & Production |
+    |<#E74C3C>| Stream Processing & Analytics |
+    |<#F39C12>| API & Service Layer |
+    |<#1ABC9C>| User Interface & Presentation |
+    |<#9B59B6>| Configuration & Infrastructure |
+    |<#34495E>| Message Broker & Storage |
+endlegend
+
+note as DataFlowNote
+    **Data Flow Pipeline:**
+    1. Event Producer generates user activities
+    2. Events published to Kafka topic
+    3. Stream Processor consumes and processes
+    4. Windowed aggregations calculated
+    5. Results published to output topic
+    6. API exposes processed data
+    7. Dashboard displays real-time metrics
+end note
+
+@enduml
